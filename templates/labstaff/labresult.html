@@ -1,0 +1,218 @@
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'staff/img/favicon.ico' %}">
+    <title>Medlab Blood Bank - </title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'staff/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'staff/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'staff/css/style.css' %}">
+    <style>
+		body {
+            background-image: url("{% static 'img/9.jpg' %}"); /* Replace 'background.jpg' with your image file name */
+            background-repeat: no-repeat;
+            background-size: cover; /* You can adjust this property to control how the image is displayed */
+        }
+		
+		.sidebar {
+			box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+			top: 50px;
+			width: 230px;
+			z-index: 1039;
+			background-color:#d1bebc;
+			bottom: 0;
+			margin-top: 10px;
+			position: fixed;
+			left: 0;
+			transition: all 0.2s ease-in-out;
+		}
+		.sidebar.opened {
+			-webkit-transition: all 0.4s ease;
+			-moz-transition: all 0.4s ease;
+			transition: all 0.4s ease;
+		}
+		.sidebar-inner {
+			height: 100%;
+			transition: all 0.2s ease-in-out 0s;
+		}
+		.sidebar-menu ul {
+			font-size: 14px;
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+		}
+		.sidebar-menu li a {
+			color: white;
+			display: block;
+			font-size: 13px;
+			height: auto;
+			padding: 0 20px;
+		}
+		.sidebar-menu li a:hover {
+			color: #802020;
+		}
+		.sidebar-menu li.active a {
+			color: #802020;
+			background-color: #f3f3f3;
+		}
+		.menu-title {
+			color: #333;
+			font-size: 15px;
+			font-weight: 500;
+			padding: 12px 20px;
+		}
+		.menu-title > i {
+			float: right;
+			line-height: 40px;
+		}
+		.sidebar-menu li.menu-title a {
+			color: #009efb;
+			display: inline-block;
+			float: right;
+			padding: 0;
+		}
+		.sidebar-menu li.menu-title a.btn {
+			color: #fff;
+			display: block;
+			float: none;
+			font-size: 15px;
+			line-height: inherit;
+			margin-bottom: 15px;
+		}
+		.sidebar-menu ul ul a.active {
+			color: #009efb;
+			text-decoration: underline;
+		}
+		
+	</style>   
+
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <div class="header" style="background-color:white;height:60px;"> 
+			<div class="header-left">
+				<a href="{% url 'staffindex' %}" class="logo" style="color: black;">
+					<img src="{% static 'mainuser/img/logocopy.png' %}" width="75" height="40" alt="" style="margin-left:15px"> <span style="color: maroon;font-size: 20px;margin-top:10px; margin-left:-10px;white-space: nowrap;">Medlab Blood Bank</span>
+				</a>
+			</div>
+			<a id="toggle_btn" href="javascript:void(0);" style="color:#d69c98;margin-top:20px;margin-left:10px;"><i class="fa fa-bars"></i></a>
+            <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fa fa-bars"></i></a>
+            <ul class="nav user-menu float-right">
+                
+                <li class="nav-item dropdown has-arrow">
+                    <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown" style="color:maroon">
+                        
+						<span style="color:maroon;">Staff</span>
+                    </a>
+					<div class="dropdown-menu">
+						
+						
+						<a class="dropdown-item" href="{% url 'loggout' %}">Logout</a>
+					</div>
+                </li>
+                
+            </ul> 
+            <div class="dropdown mobile-user-menu float-right">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    
+                  
+                    <a class="dropdown-item" href="{% url 'loggout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-inner slimscroll">
+                <div id="sidebar-menu" class="sidebar-menu">
+                    <ul>
+                        <li class="menu-title">Menu</li>
+                        <li >
+                            <a href="{% url 'labstaffindex' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+                        </li>
+						<li>
+                            <a href="{% url 'labtestbookings' %}"><i class="fa fa-address-book-o"></i> <span>Bookings</span></a>
+                        </li>
+						
+                       
+                        
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+		<div class="page-wrapper">
+			<div class="content">
+				<div class="row">
+					{% comment %} <form action="{% url 'save_lab_results' %}" method="post" id="lab_results_form">
+						{% csrf_token %}
+						<h1>Lab Results for {{ test_name }}</h1>
+						<div id="package_details_fields" style="margin-bottom: 10px; display: flex; flex-direction: column; border-radius:5px">
+						</div>
+						<input type="hidden" name="test_name" value="{{ test_name }}">
+						<!-- Add hidden input fields for patient_id and booking_id -->
+						<input type="hidden" name="patient_id" value="{{ patient_id }}">
+						<input type="hidden" name="booking_id" value="{{ booking_id }}">
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form> {% endcomment %}
+					<form action="{% url 'save_lab_results' %}" method="post" id="lab_results_form">
+						{% csrf_token %}
+						<h1>Lab Results for {{ test_name }}</h1>
+						<div id="package_details_fields" style="margin-bottom: 10px; display: flex; flex-direction: column; border-radius:5px">
+						</div>
+						<input type="hidden" name="test_name" value="{{ test_name }}">
+						<!-- Use patient_id instead of appointment_id -->
+						<input type="hidden" name="patient_id" value="{{ patient_id }}">
+						<input type="hidden" name="booking_id" value="{{ booking_id }}">
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>
+    </div>
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{% static 'staff/js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'staff/js/popper.min.js' %}"></script>
+    <script src="{% static 'staff/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'staff/js/jquery.slimscroll.js' %}"></script>
+    <script src="{% static 'staff/js/Chart.bundle.js' %}"></script>
+    <script src="{% static 'staff/js/chart.js' %}"></script>
+    <script src="{% static 'staff/js/app.js' %}"></script>
+	
+
+
+	<script>
+		// Extract package details JSON data from the template variable
+		var packageDetails = {{ package_details|safe }};
+	
+		// Get the container div where input fields will be appended
+		var packageDetailsFields = document.getElementById('package_details_fields');
+	
+		// Iterate over each key-value pair in the package details JSON
+		Object.values(packageDetails).forEach(function (value) {
+			// Create a label element
+			var label = document.createElement('label');
+			label.textContent = value;
+	
+			// Create an input element
+			var input = document.createElement('input');
+			input.setAttribute('type', 'text');
+			input.setAttribute('name', value);
+			input.setAttribute('value', ''); // Set value as empty initially
+			input.setAttribute('required', 'required');
+			input.style.width = '200px';
+			// Append the label and input elements to the container div
+			packageDetailsFields.appendChild(label);
+			packageDetailsFields.appendChild(input);
+			packageDetailsFields.appendChild(document.createElement('br')); // Add line break for better spacing
+		});
+	</script>
+
+	
+</body>
+
+</html>

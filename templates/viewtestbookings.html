@@ -1,0 +1,333 @@
+
+
+{% extends 'baselab.html' %}
+{% block content %}
+
+<style>
+    .test-details-box ul {
+        list-style: none;
+        padding: 0;
+        color:black;
+        font-weight: bold;
+        
+    }
+    .container {
+        margin-bottom: 160px; /* Adjust the value as needed */
+    }
+    .test-details-box .column {
+        float: left;
+        width: 20%; /* Adjust the width as needed */
+        padding: 0 15px; /* Adjust the padding as needed */
+        margin-right: 30px;
+    }
+
+    .test-details-box li {
+        text-indent: -0.4em; /* Adjust the text indent as needed */
+        margin-bottom: 1.4em; /* Add margin-bottom for spacing between items */
+    }
+
+    /* Add style to create space at the bottom */
+    .test-details-box::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    /* Adjust margin-bottom based on your needs */
+    .test-details-box {
+        margin-bottom: 50px;
+    }
+    
+    /* Adjust margin-bottom based on your needs for the book-now-button */
+    .book-now-button {
+        margin-bottom: 85px;
+    }
+
+    .test-details-box i {
+        color: #00CED1; /* Turquoise Blue */
+    }
+    .booked-test-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 3px solid #3498db; /* Thick blue border around the entire table */
+        }
+    
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    
+        th {
+            background-color: #3498db; /* Blue background color for heading cells */
+            color: #fff; /* White text color for heading cells */
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9; /* White background color for even rows */
+        }
+    
+        tr:nth-child(odd) {
+            background-color: #ebf5fb; /* Light blue background color for odd rows */
+        }
+        .go-back-button {
+            margin-top: 20px; /* Adjust the margin-top as needed */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+    
+        /* Modal content */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+    
+        /* Close button */
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+    
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+ 
+    
+</style>
+<div class="container">
+    <br><br>
+    <h2>Your Test Bookings</h2>
+
+    {% if bookings %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Serial No</th>
+                    <th>Patient Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Gender</th>
+                    <th>Date of Birth</th>
+                    <th>Test Name</th>
+                    <th>Test Price</th>
+                    <th>Booked Date</th>
+                    <th>Test Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ booking.patient.full_name }}</td>
+                        <td>{{ booking.patient.email }}</td>
+                        <td>{{ booking.patient.phone }}</td>
+                        <td>{{ booking.patient.address }}</td>
+                        <td>{{ booking.patient.gender }}</td>
+                        <td>{{ booking.patient.date_of_birth }}</td>
+                        <td>{{ booking.patient.selected_test.test_name }}</td>
+                        <td>{{ booking.patient.selected_test.test_price }}</td>
+                        <td>{{ booking.booked_date }}</td>
+                        <td>{{ booking.test_date }}</td>
+                        <td>{{ booking.status }}</td>
+                        <td>
+                            {% if booking.test_date %}
+                                {% if booking.is_cancelable %}
+                                    <!-- Add cancel button with class 'cancel-booking-btn' -->
+                                    <button class="btn btn-danger cancel-booking-btn" data-booking-id="{{ booking.id }}">Cancel</button>
+
+
+                                {% elif booking.test_date > timezone.now %}
+                                    Booked
+                                {% else %}
+                                    Expired
+                                {% endif %}
+                            {% else %}
+                                Test Date Not Set
+                            {% endif %}
+                        </td>
+                        {% comment %} <td>
+                            {% if booking.test_date %}
+                                {% if booking.is_cancelable %}
+                                    <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-danger">Cancel</a>
+                                {% elif booking.test_date > timezone.now %}
+                                    Booked
+                                {% else %}
+                                    Expired
+                                {% endif %}
+                            {% else %}
+                                Test Date Not Set
+                            {% endif %}
+                        </td> {% endcomment %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="go-back-button">
+            <a href="{% url 'homelab' %}" class="btn btn-primary">Go Back</a>
+        </div>
+    {% else %}
+        <p>No bookings found.</p>
+    {% endif %}
+
+
+
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Are you sure you want to cancel this booking?</p>
+            <button id="confirmCancelBtn" class="btn btn-danger">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+{% comment %} <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById("cancelModal");
+        var cancelButtons = document.querySelectorAll(".cancel-booking-btn");
+
+        cancelButtons.forEach(function(cancelButton) {
+            cancelButton.addEventListener("click", function() {
+                modal.style.display = "block";
+                var bookingId = this.getAttribute("data-booking-id");
+                console.log("Booking ID:", bookingId); // Log the booking ID
+                modal.setAttribute("data-booking-id", bookingId);
+            });
+        });
+
+        var confirmCancelBtn = document.getElementById("confirmCancelBtn");
+        confirmCancelBtn.addEventListener("click", function() {
+            modal.style.display = "none";
+            var bookingId = modal.getAttribute("data-booking-id");
+            console.log("Canceling booking with ID:", bookingId); // Log the booking ID
+            fetch("{% url 'cancel_booking' 0 %}".replace('0', bookingId), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    booking_id: bookingId
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    throw new Error('Failed to cancel booking.');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while canceling the booking. Please try again.");
+            });
+        });
+
+        var closeButton = document.getElementsByClassName("close")[0];
+        closeButton.addEventListener("click", function() {
+            modal.style.display = "none";
+        });
+
+        window.addEventListener("click", function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        });
+    });
+</script> {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById("cancelModal");
+        var confirmCancelBtn = document.getElementById("confirmCancelBtn");
+
+        confirmCancelBtn.addEventListener("click", function() {
+            modal.style.display = "none";
+            var bookingId = modal.getAttribute("data-booking-id");
+
+            // Construct the URL with the bookingId
+            var url = "{% url 'cancel_booking' 0 %}".replace('0', bookingId);
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload the page to reflect the updated status
+                    window.location.reload();
+                } else {
+                    throw new Error('Failed to cancel booking.');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while canceling the booking. Please try again.");
+            });
+        });
+
+        // Show the modal when cancel button is clicked
+        var cancelButtons = document.querySelectorAll(".cancel-booking-btn");
+        cancelButtons.forEach(function(cancelButton) {
+            cancelButton.addEventListener("click", function() {
+                modal.style.display = "block";
+                var bookingId = this.getAttribute("data-booking-id");
+                modal.setAttribute("data-booking-id", bookingId);
+            });
+        });
+
+        // Close the modal when close button is clicked
+        var closeButton = document.getElementsByClassName("close")[0];
+        closeButton.addEventListener("click", function() {
+            modal.style.display = "none";
+        });
+
+        // Close the modal when clicking outside the modal
+        window.addEventListener("click", function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        });
+    });
+</script>
+
+
+
+
+    
+    
+    
+        
+{% endblock %}

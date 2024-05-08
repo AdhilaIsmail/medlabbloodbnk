@@ -1,0 +1,243 @@
+{% extends 'baselab.html' %}
+{% block content %}
+{% load static %}
+<style>
+    body {
+        background-image: url("{% static 'img/labbook2.jpg' %}");
+        background-size: cover; /* Ensure the background image covers the entire body */
+        background-repeat: no-repeat; /* Prevent the background image from repeating */
+        background-attachment: fixed; /* Fix the background image while scrolling */
+    }
+    .container {
+       
+        max-width: 800px; /* Set the maximum width of the container */
+        margin: 0 auto; /* Center the container on the page */
+    }
+
+    .booking-section {
+        margin-top: 30px;
+        margin-bottom: 80px; /* Adjust as needed */
+    }
+
+    .booking-details-box,
+    .booking-form {
+        background-color:white;
+        border:30px solid white;
+        max-width: 550px; /* Set the maximum width of the form and details box */
+        margin: 0 auto; /* Center the form and details box on the page */
+        margin-bottom: 20px;
+    }
+
+    .booking-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .booking-form input,
+    .booking-form textarea,
+    .booking-form select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .booking-form button,
+    .booking-form a {
+        width: 100%;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+
+<div class="container">
+    
+    <h2 class="text-center mb-5">Book a Test</h2>
+    <div class="booking-section">
+        <div class="booking-details-box">
+            <h3>Test Details</h3>
+        
+            <p>Test Name: {{ test_name }}</p>
+            <p>Price: ${{ test_price }}</p>
+        </div>
+
+        <div class="booking-form">
+            <form id="bookingForm" method="post" action="{% url 'submit_booking' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="full_name">Full Name:</label>
+                    <input type="text" id="full_name" name="full_name" required oninput="validateFullName()">
+                    <p id="fullNameError" class="text-danger"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required oninput="validateEmail()">
+                    <p id="emailError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="text" id="phone" name="phone" required oninput="validatePhone()">
+                    <p id="phoneError" class="text-danger"></p>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="test_date">Booking Date:</label>
+                    <input type="date" id="test_date" name="test_date" required oninput="validateBookingDate()">
+                    <p id="bookingDateError" class="text-danger"></p>
+                </div>
+                
+
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <textarea id="address" name="address" required oninput="validateAddress()"></textarea>
+                    <p id="addressError" class="text-danger"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date_of_birth">Date of Birth:</label>
+                    <input type="date" id="date_of_birth" name="date_of_birth" required oninput="validateDateOfBirth()">
+                    <p id="dateOfBirthError" class="text-danger"></p>
+                </div>
+                <input type="hidden" name="selected_test" value="{{ test_id }}">
+                <button type="submit" id="submitBtn">Submit Booking</button>
+                <a href="{% url 'homelab' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Booking Successful!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Your booking has been successfully submitted.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeModalBtn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.getElementById('bookingForm').addEventListener('submit', function (event) {
+        // Prevent the default form submission
+        event.preventDefault();
+
+        // Disable the submit button to prevent multiple submissions
+        document.getElementById('submitBtn').disabled = true;
+
+        // Use Fetch API or other AJAX libraries to submit the form data
+        fetch(this.action, {
+            method: this.method,
+            body: new FormData(this),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success modal
+                $('#successModal').modal('show');
+                
+                // Close the modal and redirect after clicking "OK"
+                $('#successModal').on('hidden.bs.modal', function () {
+                    window.location.href = '/homelab';
+                });
+            } else {
+                // Handle other scenarios if needed
+                // Enable the submit button in case of an error
+                document.getElementById('submitBtn').disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if needed
+            // Enable the submit button in case of an error
+            document.getElementById('submitBtn').disabled = false;
+        });
+    });
+
+    // No need to manually close the modal on "Close" button click,
+    // as Bootstrap's modal handles it by default
+    function validateFullName() {
+        var fullName = document.getElementById('full_name').value;
+        var regex = /^[a-zA-Z\s]+$/;
+
+        if (!regex.test(fullName)) {
+            document.getElementById('fullNameError').innerText = 'Invalid characters. Only alphabets and spaces are allowed.';
+        } else {
+            document.getElementById('fullNameError').innerText = '';
+        }
+    }
+
+    function validateEmail() {
+        var email = document.getElementById('email').value;
+        var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!regex.test(email)) {
+            document.getElementById('emailError').innerText = 'Invalid email address.';
+        } else {
+            document.getElementById('emailError').innerText = '';
+        }
+    }
+
+    function validatePhone() {
+        var phone = document.getElementById('phone').value;
+        var regex = /^\d{10}$/;
+
+        if (!regex.test(phone)) {
+            document.getElementById('phoneError').innerText = 'Invalid phone number. It should contain 10 digits.';
+        } else {
+            document.getElementById('phoneError').innerText = '';
+        }
+    }
+
+    function validateAddress() {
+        var address = document.getElementById('address').value;
+        var regex = /^[a-zA-Z0-9\s.,()]+$/;
+
+        if (!regex.test(address)) {
+            document.getElementById('addressError').innerText = 'Invalid characters. Only letters, numbers, spaces, and . , ( ) are allowed.';
+        } else {
+            document.getElementById('addressError').innerText = '';
+        }
+    }
+    function validateBookingDate() {
+        var bookingDate = document.getElementById('test_date').value;
+        var selectedBookingDate = new Date(bookingDate);
+        var currentDate = new Date();
+    
+        if (selectedBookingDate < currentDate) {
+            document.getElementById('bookingDateError').innerText = 'Invalid booking date. Please select a date in the future.';
+        } else {
+            document.getElementById('bookingDateError').innerText = '';
+        }
+    }
+</script>
+
+{% endblock %}
